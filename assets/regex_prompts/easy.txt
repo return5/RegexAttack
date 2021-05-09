@@ -1,0 +1,11 @@
+word starts with h and ends with o,hello,hello
+word ends with d,hello world,world
+word starts with number,hello 4you,h4you
+number followed by the letter h,123 g456h,456h
+word starts with H,hello Hello,Hello
+word ends with an !, hello world!,world!
+space followed by a word, hello world, world
+word with a space in the middle,ret urn,ret urn
+
+
+

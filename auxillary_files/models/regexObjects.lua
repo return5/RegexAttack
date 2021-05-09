@@ -1,23 +1,30 @@
+local readOnly = require('/auxillary_files/util/readOnlyTables')
+
+
 
 REGEX_OBJECT = {prompt="",str="",match=""}
 REGEX_OBJECT.__index = REGEX_OBJECT
 
 local num_ships  = 0
-local file_table = {}
+file_table = {}
 
 
 function makeMatches()
     local rand = math.random
-    local file
+    local file = ""
     
 end
 
 
 local function initFileTable(file_name)
-    local t = {}
-    local file = io.open("assets/regex_prompts/"..file_name,"r")
-    local read = io.read(file,"*a")
-    for prompt,str,match in gsub("[^,]+,[^,]+,[^,]")
+    local t        = {}
+    local file     = io.open("assets/regex_prompts/"..file_name,"r")
+    local file_str = file:read("*a")
+    local add      = table.insert
+    for prompt,str,match in file_str:gmatch("([^,]+),([^,]+),([^,\n]+)\n") do
+        add(t,REGEX_OBJECT:new(prompt,str,match))
+    end
+    file_table = readOnlyTable(t)
 end
 
 
@@ -42,6 +49,6 @@ function REGEX_OBJECT:new(prompt,str,match)
     o.prompt = prompt
     o.str    = str
     o.match  = match
-    return o
+    return readOnlyTable(o)
 end
 
