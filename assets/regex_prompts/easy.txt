@@ -2,10 +2,17 @@ word starts with h and ends with o,hello,hello
 word ends with d,hello world,world
 word starts with number,hello 4you,h4you
 number followed by the letter h,123 g456h,456h
-word starts with H,hello Hello,Hello
+word starts with H,hello World Hello,Hello
 word ends with an !, hello world!,world!
 space followed by a word, hello world, world
 word with a space in the middle,ret urn,ret urn
-
-
+single digit,g hello 5,5
+multi digit number,h 4567 8,4567
+word with a number in the middle, 4 g 7h return5github,return5github
+word ends with a single digit,5g hello7,hello7
+word starts with a capital letter, 45 hello Hello,Hello
+word ends with a number, 56 78g world56,world56
+word ends with a capital letter, Hello world eartH,eartH
+word with a : in the middle,hello world hello:world,hello:world
+word surrounded by ", hello "5" "hello "world","world"
 
