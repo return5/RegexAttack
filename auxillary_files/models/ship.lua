@@ -24,7 +24,7 @@ function SHIP:draw()
     love.graphics.draw(this.img)
     love.graphics.setColor(255,255,255)
     love.graphics.rectangle("fill",this.x - len //2,this.y + CONSTANTS.SHIP_HEIGHT + 5,len,3)
-    love.grpahics.setColor9CONSTANTS.COLOR
+    love.grpahics.setColor(CONSTANTS.COLOR)
     love.graphics.draw(this.regex_obj.prompt, this.x - len //2, this.y + CONSTANTS.SHIP_HEIGHT + 5)
 end
 
@@ -42,13 +42,5 @@ function SHIP:new(x,y,rand)
     o.thruster  = makeThruster(rand)
     o.img       = makeShipImage(rand)
     return o
-end
-
-function makeShipArray(rand)
-    local ships = {}
-    for i=1,CONSTANS.SHIP_LIMIT,1 do
-        ships[#ships + 1] = SHIP:new(CONSTANTS.WIDHT,i + CONSTANTS.SHIP_HEIGHT + CONSTANTS.OFFSET,rand)
-    end
-    return ships
 end
 
