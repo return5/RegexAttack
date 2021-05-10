@@ -4,7 +4,6 @@ local regex = require('auxillary_files/models/regexObjects')
 SHIP = {x = 0, y = 0, img = "", thruster = "", regex_obj = ""}
 SHIP.__index = SHIP
 
-
 local function makeThruster(rand)
     return love.graphics.newImage('assets/graphics/thrusters/thruster_'..rand(1,4))
 end
@@ -13,11 +12,9 @@ local function makeShipImage(rand)
     return love.graphics.newImage('assets/graphics/ships/ship_'..rand(1,4))
 end
 
-
 function SHIP:update(dt)
     this.x = this.x + CONSTANTS.SPEED * dt
 end
-
 
 function SHIP:draw()
     local len = #this.regex_obj.prompt

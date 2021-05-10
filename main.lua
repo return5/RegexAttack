@@ -7,7 +7,7 @@ local function updateShipLocation(dt)
 end
 
 local function drawShips()
-    --draw red line boundary line
+    --draw red boundary line
     love.graphics.setLineWidth(5)
     love.graphics.setColor(255,0,0)
     love.graphics.line(0,0,0,CONSTANTS.HEIGHT)
@@ -23,7 +23,8 @@ local function drawShips()
     if not GET_REGEX then
         drawShips()
     else
-        
+       getRegexChoice()
+       getDifficulty()
     end
 end
 
@@ -74,7 +75,6 @@ local function makeShips()
     end
 end
 
-
 local function initConstants(difficulty)
     local ship_img = love.graphics.newImage('assets/graphics/ships/ship_1')
     
@@ -100,5 +100,4 @@ function love.load()
     REGEX_CHOICE  = getRegexChoice() 
     initConstants(getDifficulty())
 end
-
 
