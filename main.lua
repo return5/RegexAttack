@@ -5,7 +5,6 @@ local function updateShipLocation(dt)
     end
 end
 
-
 local function drawShips()
     love.graphics.setLineWidth(5)
     love.graphics.setColor(255,0,0)
@@ -26,12 +25,10 @@ local function checkRegexMatch(regex)
     end
 end
 
-
 local function getDifficulty()
     local dificulty = "easy" 
     return dificulty
 end
-
 
 local function getShipLimit(difficulty)
     if difficulty == "easy" then
@@ -52,7 +49,6 @@ end
 function love.update(dt)
     updateShipLocations(dt)
 end
-
 
 local function makeShips()
     SHIPS      = {}
@@ -76,6 +72,7 @@ local function initConstants(difficulty)
         DIFFICULTY  = difficulty,
         OFFSET      = 15,
         COLOR       = love.graphics.getColor(),
+        SPEED       = 10
         })
 end
 
