@@ -13,6 +13,27 @@ local function makeShipImage(rand)
     return love.graphics.newImage('assets/graphics/ships/ship_'..rand(1,4))
 end
 
+
+function SHIP:update(dt)
+    this.x = this.x + CONSTANTS.SPEED * dt
+end
+
+
+function SHIP:draw()
+    local len = #this.regex_obj.prompt
+    love.graphics.draw(this.img)
+    love.graphics.setColor(255,255,255)
+    love.graphics.rectangle("fill",this.x - len //2,this.y + CONSTANTS.SHIP_HEIGHT + 5,len,3)
+    love.grpahics.setColor9CONSTANTS.COLOR
+    love.graphics.draw(this.regex_obj.prompt, this.x - len //2, this.y + CONSTANTS.SHIP_HEIGHT + 5)
+end
+
+function SHIP:clear()
+    this.img = nil
+    this.thruster = nil
+    this.regex_obj = nil
+end
+
 function SHIP:new(x,y,rand)
     local o     = setmetatable({},SHIP)
     o.x         = x

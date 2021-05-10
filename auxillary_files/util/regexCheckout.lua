@@ -6,21 +6,16 @@ local lua_regex   = {}
 local posix_regex = {}
 
 
-local function checkRegex(regex,objects,func)
-    for i=1,#objects,1 do
-        if func(objects[i].regex_obj.str,regex) == objects[i].regex_obj.match then
-            return i
-        end
-    end
-    return false
+local function checkRegex(regex,regex_object,func)
+    return func(regex_obj.str,regex) == regex_obj.match
 end
 
-function lua_regex.matchRegex(regex,objects)
-    return checkRegex(regex,objects,string.match)
+function lua_regex.matchRegex(regex,regex_obj)
+    return checkRegex(regex,regex_obj,string.match)
 end
 
-function posix_regex.matchRegex(regex,objects)
-    return checkRegex(regex,objects,lrex.match)
+function posix_regex.matchRegex(regex,regex_obj)
+    return checkRegex(regex,regex_obj,lrex.match)
 end
 
 if REGEX_CHOICE == 1 then
