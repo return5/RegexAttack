@@ -17,10 +17,10 @@ function SHIP:update(dt)
 end
 
 function SHIP:draw()
-    local len = #this.regex_obj.prompt
+    local len = this.regex_obj.prompt:len()
     love.graphics.draw(this.img)
     love.graphics.setColor(255,255,255)
-    love.graphics.rectangle("fill",this.x - len //2,this.y + CONSTANTS.SHIP_HEIGHT + 5,len,3)
+    love.graphics.rectangle("fill",this.x - len //2,this.y + CONSTANTS.SHIP_HEIGHT + 5,len,5)
     love.grpahics.setColor(CONSTANTS.COLOR)
     love.graphics.draw(this.regex_obj.prompt, this.x - len //2, this.y + CONSTANTS.SHIP_HEIGHT + 5)
 end

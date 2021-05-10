@@ -1,3 +1,4 @@
+local Button = require('auxillary_files/models/button')
 
 local function updateShipLocation(dt)
     --for each ship update its location
@@ -6,27 +7,21 @@ local function updateShipLocation(dt)
     end
 end
 
-local function drawShips()
+local function drawBoundaryLine()
     --draw red boundary line
     love.graphics.setLineWidth(5)
     love.graphics.setColor(255,0,0)
-    love.graphics.line(0,0,0,CONSTANTS.HEIGHT)
-    love.graphics.setColor(CONSTANTS.COLOR)
-    
+    love.graphics.line(15,0,15,CONSTANTS.HEIGHT)
+    love.graphics.setColor(CONSTANTS.RED,CONSTANTS.GREEN,CONSTANTS.BLUE)
+end
+
+local function drawShips()
     --draw each ship
     for i=#SHIPS,1,-1 do
         SHIPS[i]:draw()
     end
 end
 
-local function drawShips()
-    if not GET_REGEX then
-        drawShips()
-    else
-       getRegexChoice()
-       getDifficulty()
-    end
-end
 
 local function checkRegexMatch(regex)
     --for each ship check to see if the reegex matches, and if does remove ship.
@@ -39,31 +34,75 @@ local function checkRegexMatch(regex)
     end
 end
 
---get dificult from the user
-local function getDifficulty()
-    local dificulty = "easy" 
-    return dificulty
+--set limit of number of ships based on difficulty
+local function setShipLimit()
+    if DIFFICULTY == "easy" then
+        SHIP_LIMIT =  3
+    elseif DIFFICULTY == "medium" then
+        SHIP_LIMIT = 4
+    elseif DIFFICULTY == "tough" then
+        SHIP_LIMIT = 4
+    else
+        SHIP_LIMIT = 3
+    end
 end
 
---set limit of number of ships based on difficulty
-local function getShipLimit(difficulty)
-    if difficulty == "easy" then
-        return 3
-    elseif difficulty == "medium" then
-        return 4
-    elseif difficulty == "tough" then
-        return 4
+local function drawRegexSelectionScreen()
+    local str      = "Please select the REGEX flavor to use."
+    local width    = CONSTANTS.FONT:getWidth(str) 
+    local str_x    = CONSTANTS.WIDTH / 2 - width / 2 --place text in middle of screen
+    local height   = CONSTANTS.FONT_HEIGHT * 3 -- height to make each button
+    local button_x = str_x  + 50 -- x for the left hand side of button
+    local lua_y    = CONSTANTS.FONT_HEIGHT * 2  -- y for top side of button
+    local posix_y  = CONSTANTS.FONT_HEIGHT * 7
+    love.graphics.print(str,str_x,5)
+    local lua_bttn   = BUTTON:new(button_x, lua_y,"Lua Patterns",100,height,function() REGEX = 1 end)
+    local posix_bttn = BUTTON:new(button_x,posix_y,"POSIX",100,height,function() REGEX = 2 end)
+    lua_bttn:draw()
+    posix_bttn:draw()
+    if love.mouse.isDown(1) and onClick({posix_bttn,lua_bttn}) then
+        GET_REGEX = false
+        MOUSE_DEBOUNCE = love.timer.getTime()
     end
-    return 3
+end
+
+local function drawDifficultySelectionScreen()
+    local str         = "Please select Difficulty."
+    local width       = CONSTANTS.FONT:getWidth(str) 
+    local str_x       = CONSTANTS.WIDTH / 2 - width / 2 --place text in middle of screen
+    local height      = CONSTANTS.FONT_HEIGHT * 3 -- height to make each button
+    local button_x    = str_x  + 15 -- x for the left hand side of button
+    local height      = CONSTANTS.FONT_HEIGHT * 3
+    local easy_y      = CONSTANTS.FONT_HEIGHT * 2
+    local medium_y    = CONSTANTS.FONT_HEIGHT * 7
+    local tough_y     = CONSTANTS.FONT_HEIGHT * 12
+    local easy_bttn   = BUTTON:new(button_x, easy_y,"easy",100,height,function() DIFFICULTY = "easy" end)
+    local medium_bttn = BUTTON:new(button_x,medium_y,"medium",100,height,function() DIFFICULTY = "medium" end)
+    local tough_bttn  = BUTTON:new(button_x,tough_y,"tough",100,height,function() DIFFICULTY = "tough" end)
+    love.graphics.print(str,str_x,5)
+    easy_bttn:draw()
+    medium_bttn:draw()
+    tough_bttn:draw()
+    if love.mouse.isDown(1) and (love.timer.getTime() - MOUSE_DEBOUNCE) * 1000 > 500 and onClick({easy_bttn,medium_bttn,tough_bttn}) then
+        GET_DIFFICULTY = false;
+    end
+    
 end
 
 function love.draw()
-    drawShips()
+    if not GET_REGEX and not GET_DIFFICULTY then
+        drawBoundaryLine()
+        drawShips()
+    elseif GET_REGEX then
+        drawRegexSelectionScreen()
+    elseif GET_DIFFICULTY then
+        drawDifficultySelectionScreen()
+    end
 end
 
 
 function love.update(dt)
-    updateShipLocations(dt)
+    --updateShipLocations(dt)
 end
 
 local function makeShips()
@@ -71,33 +110,42 @@ local function makeShips()
     local x    = CONSTANTS.WIDTH - CONSTANTS.SHIP_WIDTH 
     local rand = math.random
     for i=1,CONSTANTS.SHIP_LIMIT,1 do
-        SHIPS[3SHIPS + 1] = SHIP:new(x,i * CONSTANTS.SHIP_HEIGHT + CONSTANTS.OFFSET,rand) 
+        SHIPS[#SHIPS + 1] = SHIP:new(x,i * CONSTANTS.SHIP_HEIGHT + CONSTANTS.OFFSET,rand) 
     end
 end
 
-local function initConstants(difficulty)
-    local ship_img = love.graphics.newImage('assets/graphics/ships/ship_1')
-    
-    CONSTANTS = readOnlyTable({
-        WIDTH        = 200,
-        HEIGHT       = 100,
-        SHIP_LIMIT   = getShipLimit(difficulty),
-        SHIP_HEIGHT  = ship_imge:getHeight(),
-        SHIP_WIDTH   = ship_img:getWidth(),
-        DIFFICULTY   = difficulty,
+local function initConstants()
+    --local ship_img = love.graphics.newImage( 'ship_1.png')
+    local read_only = require('auxillary_files/util/readOnlyTables') 
+    local r,g,b     = love.graphics.getColor()
+    local font      = love.graphics.newFont()
+    local height    = font:getHeight()
+    CONSTANTS       = readOnlyTable({
+        WIDTH       = 500,
+        HEIGHT      = 500,
+      --  SHIP_HEIGHT  = ship_imge:getHeight(),
+      --  SHIP_WIDTH   = ship_img:getWidth(),
         OFFSET       = 15,
-        COLOR        = love.graphics.getColor(),
         SPEED        = 10,
-        REGEX        = require('regexCheckout')
+        RED          = r,
+        GREEN        = g,
+        BLUE         = b,
+        FONT         = font,
+        FONT_HEIGHT  = height,
+        FONT_HALF_H  = height / 2
         })
 end
 
 function love.load()
-    SHIPS         = {}
-    PLAYER_HEALTH = 100
-    CONSTANTS     = {}
-    GET_REGEX     = true
-    REGEX_CHOICE  = getRegexChoice() 
-    initConstants(getDifficulty())
+    SHIPS          = {}
+    PLAYER_HEALTH  = 100
+    CONSTANTS      = {}
+    initConstants()
+    love.window.setMode(CONSTANTS.WIDTH,CONSTANTS.HEIGHT)
+    GET_REGEX      = true
+    GET_DIFFICULTY = true
+    REGEX          = ""
+    SHIP_LIMIT     = 0
+    MOUSE_DEBOUNCE = 0
 end
 
