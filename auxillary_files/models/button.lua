@@ -3,10 +3,6 @@ local Readonly = require('auxillary_files/util/readOnlyTables')
 BUTTON = {x = 0, y = 0, text = "", height = 0, width = 0 }
 BUTTON.__index = BUTTON
 
-function makeButton(x,y,text,widht,height,onclick)
-    return readOnlyTable(BUTTON:new(x,y,text,width,height))
-end
-
 function BUTTON:draw()
     love.graphics.setColor(.01,.2,.5)
     love.graphics.rectangle("fill",self.x,self.y,self.width,self.height)
