@@ -16,13 +16,28 @@ function SHIP:update(dt)
     self.x = self.x - CONSTANTS.SPEED * dt
 end
 
+
 function SHIP:draw()
+    --draw the ship
     love.graphics.draw(self.img,self.x,self.y)
+
+    --set color to white
     love.graphics.setColor(1,1,1)
+
+    --draw a white rectangle below the ship. center of rectange is lined up with center of ship
     love.graphics.rectangle("fill",self.x + CONSTANTS.SHIP_WIDTH / 2 - self.prompt_width / 2,self.y + CONSTANTS.SHIP_HEIGHT + 5,self.prompt_width,CONSTANTS.FONT_HEIGHT)
+    
+    --set color to black
     love.graphics.setColor(0,0,0)
+    --
+    --print prompt for ship inside of rectangle
     love.graphics.print(self.regex_obj.prompt, self.x + CONSTANTS.SHIP_WIDTH / 2 - self.prompt_width / 2, self.y + CONSTANTS.SHIP_HEIGHT + 5)
+
+    --return color to default values
     love.graphics.setColor(CONSTANTS.RED,CONSTANTS.GREEN,CONSTANTS.BLUE)
+
+    --draw thruster
+    love.graphics.draw(self.thruster,self.x + CONSTANTS.SHIP_WIDTH - 4,self.y + 15)
 end
 
 function SHIP:clear()
