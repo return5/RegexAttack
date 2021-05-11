@@ -1,6 +1,8 @@
 --file which serves to check the regex pattern against the list of strings.
 --import the posix regex version of lrex
 
+local Reg = require('regexlib')
+
 local lua_regex   = {}
 local posix_regex = {}
 
@@ -14,8 +16,7 @@ function lua_regex.matchRegex(regex,regex_obj)
 end
 
 function posix_regex.matchRegex(regex,regex_obj)
-    local lrex = require('rex_posix')
-    return checkRegex(regex,regex_obj,lrex.match)
+   return checkRegex(regex,regex_obj,checkMatch)
 end
 
 if REGEX_CHOICE == 1 then

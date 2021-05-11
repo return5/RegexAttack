@@ -72,7 +72,7 @@ local function drawRegexSelectionScreen()
     local posix_y  = CONSTANTS.FONT_HEIGHT * 7
     love.graphics.print(str,str_x,5)
     local lua_bttn   = BUTTON:new(button_x, lua_y,"Lua Patterns",100,height,function() REGEX_CHOICE = 1 end)
-    local posix_bttn = BUTTON:new(button_x,posix_y,"POSIX",100,height,function() REGEX_FLAVOR = 2 end)
+    local posix_bttn = BUTTON:new(button_x,posix_y,"POSIX",100,height,function() REGEX_CHOICE = 2 end)
     lua_bttn:draw()
     posix_bttn:draw()
     if love.mouse.isDown(1) and onClick({posix_bttn,lua_bttn}) then
@@ -118,7 +118,6 @@ function love.draw()
 end
 
 local function makeShips()
-    io.write("making ships: ", LEVEL,"\n")
     SHIPS      = {}
     local x    = CONSTANTS.WIDTH - CONSTANTS.SHIP_WIDTH 
     local rand = math.random
