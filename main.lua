@@ -118,6 +118,7 @@ function love.draw()
 end
 
 local function makeShips()
+    io.write("making ships: ", LEVEL,"\n")
     SHIPS      = {}
     local x    = CONSTANTS.WIDTH - CONSTANTS.SHIP_WIDTH 
     local rand = math.random
@@ -139,27 +140,28 @@ function love.update(dt)
         initGame()
     elseif INIT_LEVEL then
         makeShips()
-    end
-
-    if #SHIPS <= 0 then
-        INIT_LEVEL   = LEVEL < 3 and true or false
-        GAME_OVER    = not INIT_LEVEL
-        PLAYER_SCORE = LEVEL < 3 and PLAYER_SCORE + 100 or PLAYER_SCORE
-        LEVEL        = LEVEL + 1
-    else
-        for i=#SHIPS,1,-1 do
-            SHIPS[i]:update(dt) 
-            if SHIPS[i].x == 5 then
-                PLAYER_HEALTH = PLAYER_HEALTH - 25
-            elseif SHIPS[i].x < 0 then
-                SHIPS[i]:clear()
-                table.remove(SHIPS,i)
+        INIT_LEVEL = false
+    elseif not GET_DIFFICULTY then
+        if #SHIPS <= 0 then
+            INIT_LEVEL   = LEVEL < 3 and true or false
+            GAME_OVER    = not INIT_LEVEL
+            PLAYER_SCORE = LEVEL < 3 and PLAYER_SCORE + 100 or PLAYER_SCORE
+            LEVEL        = LEVEL + 1
+        else
+            for i=#SHIPS,1,-1 do
+                SHIPS[i]:update(dt) 
+                if SHIPS[i].x == 5 then
+                    PLAYER_HEALTH = PLAYER_HEALTH - 25
+                elseif SHIPS[i].x < 0 then
+                    SHIPS[i]:clear()
+                    table.remove(SHIPS,i)
+                end
             end
         end
-    end
 
-    if PLAYER_HEALTH <= 0 then
-        GAME_OVER = true
+        if PLAYER_HEALTH <= 0 then
+            GAME_OVER = true
+        end
     end
 end
 
