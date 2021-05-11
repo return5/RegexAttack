@@ -7,12 +7,6 @@ REGEX_OBJECT.__index = REGEX_OBJECT
 
 local file_table = {}
 
-function makeMatches()
-    local rand = math.random
-    local file = ""
-    
-end
-
 local function initFileTable(file_name)
     local t        = {}
     local file     = io.open("assets/regex_prompts/"..file_name,"r")

@@ -16,7 +16,6 @@ function SHIP:update(dt)
     self.x = self.x - CONSTANTS.SPEED * dt
 end
 
-
 function SHIP:draw()
     --draw the ship
     love.graphics.draw(self.img,self.x,self.y)
@@ -25,7 +24,7 @@ function SHIP:draw()
     love.graphics.setColor(1,1,1)
 
     --draw a white rectangle below the ship. center of rectange is lined up with center of ship
-    love.graphics.rectangle("fill",self.x + CONSTANTS.SHIP_WIDTH / 2 - self.prompt_width / 2,self.y + CONSTANTS.SHIP_HEIGHT + 5,self.prompt_width,CONSTANTS.FONT_HEIGHT)
+    love.graphics.rectangle("fill",self.x + (CONSTANTS.SHIP_WIDTH / 2 - self.prompt_width / 2) - 3,self.y + CONSTANTS.SHIP_HEIGHT + 5,self.prompt_width,CONSTANTS.FONT_HEIGHT)
     
     --set color to black
     love.graphics.setColor(0,0,0)
@@ -53,7 +52,7 @@ function SHIP:new(x,y,rand)
     o.regex_obj = getRegexObject(rand)
     o.thruster  = makeThruster(rand)
     o.img       = makeShipImage(rand)
-    o.prompt_width = CONSTANTS.FONT:getWidth(o.regex_obj.prompt)
+    o.prompt_width = CONSTANTS.FONT:getWidth(o.regex_obj.prompt) + 6
     return o
 end
 

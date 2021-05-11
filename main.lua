@@ -115,10 +115,36 @@ function love.update(dt)
         setShipLimit()
         initObjects()
         makeShips()
+        REGEX = require('auxillary_files/util/regexCheckout')
         INIT_LEVEL = false
     end
     for i=#SHIPS,1,-1 do
         SHIPS[i]:update(dt)
+    end
+end
+
+
+
+--takes text input. used to get player's regex
+function love.textinput(t)
+    PLAYER_INPUT = PLAYER_INPUT .. t
+end
+
+--handle key presses
+function love.keypressed(_,scancode)
+    --if player presses enter
+    if scancode == "return" then
+        checkRegexMatch(PLAYER_INPUT)
+        PLAYER_INPUT = ""
+    --if player hits backspace, delete char. code is copied directly from love2d wiki
+    elseif scancode == "backspace" then
+        -- get the byte offset to the last UTF-8 character in the string.
+        local byteoffset = utf8.offset(PLAYER_NAME, -1)
+        if byteoffset then
+            -- remove the last UTF-8 character.
+            -- string.sub operates on bytes rather than UTF-8 characters, so we couldn't do string.sub(text, 1, -2).
+            PLAYER_NAME = string.sub(PLAYER_NAME, 1, byteoffset - 1)
+        end
     end
 end
 
@@ -135,7 +161,7 @@ local function initConstants()
         SHIP_HEIGHT  = ship_img:getHeight(),
         SHIP_WIDTH   = ship_img:getWidth(),
         OFFSET       = ship_img:getHeight() / 2,
-        SPEED        = 10,
+        SPEED        = 30,
         RED          = r,
         GREEN        = g,
         BLUE         = b,
@@ -158,6 +184,7 @@ function love.load()
     SHIP_LIMIT     = 0
     MOUSE_DEBOUNCE = 0
     INIT_LEVEL     = false
+    PLAYER_INPUT   = ''
 
 end
 
