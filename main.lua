@@ -1,4 +1,5 @@
 local Button = require('auxillary_files/models/button')
+local Ship   = require('auxillary_files/models/ship')
 
 local function updateShipLocation(dt)
     --for each ship update its location
@@ -84,9 +85,9 @@ local function drawDifficultySelectionScreen()
     medium_bttn:draw()
     tough_bttn:draw()
     if love.mouse.isDown(1) and (love.timer.getTime() - MOUSE_DEBOUNCE) * 1000 > 500 and onClick({easy_bttn,medium_bttn,tough_bttn}) then
-        GET_DIFFICULTY = false;
+        GET_DIFFICULTY = false
+        INIT_LEVEL     = true
     end
-    
 end
 
 function love.draw()
@@ -100,17 +101,24 @@ function love.draw()
     end
 end
 
-
-function love.update(dt)
-    --updateShipLocations(dt)
-end
-
 local function makeShips()
     SHIPS      = {}
     local x    = CONSTANTS.WIDTH - CONSTANTS.SHIP_WIDTH 
     local rand = math.random
-    for i=1,CONSTANTS.SHIP_LIMIT,1 do
-        SHIPS[#SHIPS + 1] = SHIP:new(x,i * CONSTANTS.SHIP_HEIGHT + CONSTANTS.OFFSET,rand) 
+    for i=0,SHIP_LIMIT - 1,1 do
+        SHIPS[#SHIPS + 1] = SHIP:new(x,i * (CONSTANTS.SHIP_HEIGHT + CONSTANTS.OFFSET) + CONSTANTS.OFFSET,rand) 
+    end
+end
+
+function love.update(dt)
+    if INIT_LEVEL then
+        setShipLimit()
+        initObjects()
+        makeShips()
+        INIT_LEVEL = false
+    end
+    for i=#SHIPS,1,-1 do
+        SHIPS[i]:update(dt)
     end
 end
 
@@ -119,13 +127,14 @@ local function initConstants()
     local read_only = require('auxillary_files/util/readOnlyTables') 
     local r,g,b     = love.graphics.getColor()
     local font      = love.graphics.newFont()
+    local ship_img  = love.graphics.newImage('assets/graphics/ships/ship_1.png')
     local height    = font:getHeight()
     CONSTANTS       = readOnlyTable({
-        WIDTH       = 500,
-        HEIGHT      = 500,
-      --  SHIP_HEIGHT  = ship_imge:getHeight(),
-      --  SHIP_WIDTH   = ship_img:getWidth(),
-        OFFSET       = 15,
+        WIDTH        = 900,
+        HEIGHT       = 500,
+        SHIP_HEIGHT  = ship_img:getHeight(),
+        SHIP_WIDTH   = ship_img:getWidth(),
+        OFFSET       = ship_img:getHeight() / 2,
         SPEED        = 10,
         RED          = r,
         GREEN        = g,
@@ -137,15 +146,18 @@ local function initConstants()
 end
 
 function love.load()
+    math.randomseed(os.time())
     SHIPS          = {}
     PLAYER_HEALTH  = 100
     CONSTANTS      = {}
     initConstants()
-    love.window.setMode(CONSTANTS.WIDTH,CONSTANTS.HEIGHT)
+    love.window.setMode(CONSTANTS.WIDTH,CONSTANTS.HEIGHT + 50)
     GET_REGEX      = true
     GET_DIFFICULTY = true
     REGEX          = ""
     SHIP_LIMIT     = 0
     MOUSE_DEBOUNCE = 0
+    INIT_LEVEL     = false
+
 end
 

@@ -5,8 +5,7 @@ local readOnly = require('/auxillary_files/util/readOnlyTables')
 REGEX_OBJECT = {prompt="",str="",match=""}
 REGEX_OBJECT.__index = REGEX_OBJECT
 
-local num_ships  = 3
-file_table = {}
+local file_table = {}
 
 function makeMatches()
     local rand = math.random
@@ -35,6 +34,10 @@ function initObjects()
         file = "tough.txt"
     end
     initFileTable(file)
+end
+
+function getRegexObject(rand) 
+    return file_table[rand(1,file_table.len)]
 end
 
 function REGEX_OBJECT:new(prompt,str,match)
