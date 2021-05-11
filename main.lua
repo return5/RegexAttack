@@ -1,5 +1,6 @@
 local Button = require('auxillary_files/models/button')
 local Ship   = require('auxillary_files/models/ship')
+local utf8   = require("utf8")
 
 local function updateShipLocation(dt)
     --for each ship update its location
@@ -23,13 +24,26 @@ local function drawShips()
     end
 end
 
+local function printUserInput()
+    love.graphics.setColor(1,1,1)
+    love.graphics.rectangle("fill",CONSTANTS.WIDTH / 2 - 100,CONSTANTS.HEIGHT + 20,CONSTANTS.FONT_WIDTH * 30,CONSTANTS.FONT_HEIGHT * 3)
+    love.graphics.setColor(0,0,0)
+    love.graphics.print(PLAYER_INPUT,CONSTANTS.WIDTH / 2 - 100, CONSTANTS.HEIGHT + 20 + CONSTANTS.FONT_HEIGHT)
+end
+
+local function printScore()
+    love.graphics.print("Player's health: "..PLAYER_HEALTH,20,4)
+    love.graphics.print("Player's Score: "..PLAYER_SCORE,20,4 + CONSTANTS.FONT_HEIGHT)
+
+end
+
 
 local function checkRegexMatch(regex)
     --for each ship check to see if the reegex matches, and if does remove ship.
     for i=#SHIPS,1,-1 do
-        if REGEX.matchRegex(regex,SHIPS[i].regex_obj) then
+        if REGEX_FLAVOR.matchRegex(regex,SHIPS[i].regex_obj) then
             SHIPS[i]:clear()
-            SHIPS[i] = nil
+            table.remove(SHIPS,i)
             break
         end
     end
@@ -57,8 +71,8 @@ local function drawRegexSelectionScreen()
     local lua_y    = CONSTANTS.FONT_HEIGHT * 2  -- y for top side of button
     local posix_y  = CONSTANTS.FONT_HEIGHT * 7
     love.graphics.print(str,str_x,5)
-    local lua_bttn   = BUTTON:new(button_x, lua_y,"Lua Patterns",100,height,function() REGEX = 1 end)
-    local posix_bttn = BUTTON:new(button_x,posix_y,"POSIX",100,height,function() REGEX = 2 end)
+    local lua_bttn   = BUTTON:new(button_x, lua_y,"Lua Patterns",100,height,function() REGEX_CHOICE = 1 end)
+    local posix_bttn = BUTTON:new(button_x,posix_y,"POSIX",100,height,function() REGEX_FLAVOR = 2 end)
     lua_bttn:draw()
     posix_bttn:draw()
     if love.mouse.isDown(1) and onClick({posix_bttn,lua_bttn}) then
@@ -86,7 +100,7 @@ local function drawDifficultySelectionScreen()
     tough_bttn:draw()
     if love.mouse.isDown(1) and (love.timer.getTime() - MOUSE_DEBOUNCE) * 1000 > 500 and onClick({easy_bttn,medium_bttn,tough_bttn}) then
         GET_DIFFICULTY = false
-        INIT_LEVEL     = true
+        INIT_GAME      = true
     end
 end
 
@@ -94,6 +108,8 @@ function love.draw()
     if not GET_REGEX and not GET_DIFFICULTY then
         drawBoundaryLine()
         drawShips()
+        printScore()
+        printUserInput()
     elseif GET_REGEX then
         drawRegexSelectionScreen()
     elseif GET_DIFFICULTY then
@@ -110,20 +126,42 @@ local function makeShips()
     end
 end
 
-function love.update(dt)
-    if INIT_LEVEL then
-        setShipLimit()
-        initObjects()
-        makeShips()
-        REGEX = require('auxillary_files/util/regexCheckout')
-        INIT_LEVEL = false
-    end
-    for i=#SHIPS,1,-1 do
-        SHIPS[i]:update(dt)
-    end
+local function initGame()
+    setShipLimit()
+    initObjects()
+    makeShips()
+    REGEX_FLAVOR = require('auxillary_files/util/regexCheckout')
+    INIT_GAME    = false
 end
 
+function love.update(dt)
+    if INIT_GAME then
+        initGame()
+    elseif INIT_LEVEL then
+        makeShips()
+    end
 
+    if #SHIPS <= 0 then
+        INIT_LEVEL   = LEVEL < 3 and true or false
+        GAME_OVER    = not INIT_LEVEL
+        PLAYER_SCORE = LEVEL < 3 and PLAYER_SCORE + 100 or PLAYER_SCORE
+        LEVEL        = LEVEL + 1
+    else
+        for i=#SHIPS,1,-1 do
+            SHIPS[i]:update(dt) 
+            if SHIPS[i].x == 5 then
+                PLAYER_HEALTH = PLAYER_HEALTH - 25
+            elseif SHIPS[i].x < 0 then
+                SHIPS[i]:clear()
+                table.remove(SHIPS,i)
+            end
+        end
+    end
+
+    if PLAYER_HEALTH <= 0 then
+        GAME_OVER = true
+    end
+end
 
 --takes text input. used to get player's regex
 function love.textinput(t)
@@ -139,11 +177,11 @@ function love.keypressed(_,scancode)
     --if player hits backspace, delete char. code is copied directly from love2d wiki
     elseif scancode == "backspace" then
         -- get the byte offset to the last UTF-8 character in the string.
-        local byteoffset = utf8.offset(PLAYER_NAME, -1)
+        local byteoffset = utf8.offset(PLAYER_INPUT, -1)
         if byteoffset then
             -- remove the last UTF-8 character.
             -- string.sub operates on bytes rather than UTF-8 characters, so we couldn't do string.sub(text, 1, -2).
-            PLAYER_NAME = string.sub(PLAYER_NAME, 1, byteoffset - 1)
+            PLAYER_INPUT = string.sub(PLAYER_INPUT, 1, byteoffset - 1)
         end
     end
 end
@@ -157,34 +195,39 @@ local function initConstants()
     local height    = font:getHeight()
     CONSTANTS       = readOnlyTable({
         WIDTH        = 900,
-        HEIGHT       = 500,
+        HEIGHT       = 450,
         SHIP_HEIGHT  = ship_img:getHeight(),
         SHIP_WIDTH   = ship_img:getWidth(),
         OFFSET       = ship_img:getHeight() / 2,
-        SPEED        = 30,
+        SPEED        = 20,
         RED          = r,
         GREEN        = g,
         BLUE         = b,
         FONT         = font,
         FONT_HEIGHT  = height,
-        FONT_HALF_H  = height / 2
+        FONT_HALF_H  = height / 2,
+        FONT_WIDTH   = font:getWidth(1)
         })
 end
 
 function love.load()
-    math.randomseed(os.time())
-    SHIPS          = {}
-    PLAYER_HEALTH  = 100
-    CONSTANTS      = {}
-    initConstants()
-    love.window.setMode(CONSTANTS.WIDTH,CONSTANTS.HEIGHT + 50)
-    GET_REGEX      = true
-    GET_DIFFICULTY = true
-    REGEX          = ""
-    SHIP_LIMIT     = 0
-    MOUSE_DEBOUNCE = 0
-    INIT_LEVEL     = false
-    PLAYER_INPUT   = ''
-
+    math.randomseed(os.time())  --seed random generator
+    SHIPS          = {}         -- array of ships
+    PLAYER_HEALTH  = 100        -- player's starting health'
+    CONSTANTS      = {}         -- table which will hold constants
+    initConstants()             -- initalize constants
+    love.window.setMode(CONSTANTS.WIDTH,CONSTANTS.HEIGHT + 100)  -- set size fo window
+    GET_REGEX      = true  -- should the game get the regex flavor from the user
+    GET_DIFFICULTY = true  -- should the game get the difficulty from the user
+    REGEX_FLAVOR   = ""    -- flavor of regex to user 
+    SHIP_LIMIT     = 0     -- limit on number of enemy ships
+    MOUSE_DEBOUNCE = 0     -- used to control mouse debouncing
+    INIT_LEVEL     = false -- shoudl game start a new level
+    INIT_GAME      = false -- should game initilize itself
+    PLAYER_INPUT   = ''    -- player's input, holds the inputted regex
+    GAME_OVER      = false -- is the game over
+    LEVEL          = 1     -- current level
+    PLAYER_SCORE   = 0     -- player's score
+    REGEX_CHOICE   = 0
 end
 

@@ -5,7 +5,7 @@ local lua_regex   = {}
 local posix_regex = {}
 
 
-local function checkRegex(regex,regex_object,func)
+local function checkRegex(regex,regex_obj,func)
     return func(regex_obj.str,regex) == regex_obj.match
 end
 
