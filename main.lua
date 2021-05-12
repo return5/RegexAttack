@@ -1,6 +1,8 @@
 local Button = require('auxillary_files/models/button')
 local Ship   = require('auxillary_files/models/ship')
 local utf8   = require("utf8")
+local Tick   = require('auxillary_files/util/tick')
+local Lume   = require('auxillary_files/util/lume')
 
 local function updateShipLocation(dt)
     --for each ship update its location
@@ -24,6 +26,19 @@ local function drawShips()
     end
 end
 
+local function drawExplosions()
+    for i=#EXPLOSIONS,1,-1 do
+        love.graphics.draw(CONSTANTS.EXPLOSION,EXPLOSIONS[i].x,EXPLOSIONS[i].y)
+    end
+end
+
+local function makeExplosion(i)
+    EXPLOSIONS[#EXPLOSIONS + 1] = {x = SHIPS[i].x,y = SHIPS[i].y}
+    local t = #EXPLOSIONS
+    Tick.delay(Lume.once(function(t) table.remove(EXPLOSIONS,t) end,t),5)
+end
+
+
 local function printUserInput()
     love.graphics.setColor(1,1,1)
     love.graphics.rectangle("fill",CONSTANTS.WIDTH / 2 - 100,CONSTANTS.HEIGHT + 20,CONSTANTS.FONT_WIDTH * 30,CONSTANTS.FONT_HEIGHT * 3)
@@ -37,11 +52,11 @@ local function printScore()
 
 end
 
-
 local function checkRegexMatch(regex)
     --for each ship check to see if the reegex matches, and if does remove ship.
     for i=#SHIPS,1,-1 do
         if REGEX_FLAVOR.matchRegex(regex,SHIPS[i].regex_obj) then
+            makeExplosion(i)
             SHIPS[i]:clear()
             table.remove(SHIPS,i)
             break
@@ -52,9 +67,9 @@ end
 --set limit of number of ships based on difficulty
 local function setShipLimit()
     if DIFFICULTY == "easy" then
-        SHIP_LIMIT =  3
+        SHIP_LIMIT =  2
     elseif DIFFICULTY == "medium" then
-        SHIP_LIMIT = 4
+        SHIP_LIMIT = 3
     elseif DIFFICULTY == "tough" then
         SHIP_LIMIT = 4
     else
@@ -108,6 +123,7 @@ function love.draw()
     if not GET_REGEX and not GET_DIFFICULTY then
         drawBoundaryLine()
         drawShips()
+        drawExplosions()
         printScore()
         printUserInput()
     elseif GET_REGEX then
@@ -122,13 +138,13 @@ local function makeShips()
     local x    = CONSTANTS.WIDTH - CONSTANTS.SHIP_WIDTH 
     local rand = math.random
     for i=0,SHIP_LIMIT - 1,1 do
-        SHIPS[#SHIPS + 1] = SHIP:new(x,i * (CONSTANTS.SHIP_HEIGHT + CONSTANTS.OFFSET) + CONSTANTS.OFFSET,rand) 
+        SHIPS[#SHIPS + 1] = SHIP:new(x,i * (CONSTANTS.SHIP_HEIGHT + CONSTANTS.OFFSET),rand) 
     end
 end
 
 local function initGame()
     setShipLimit()
-    initObjects()
+    initFileTable()
     makeShips()
     REGEX_FLAVOR = require('auxillary_files/util/regexCheckout')
     INIT_GAME    = false
@@ -141,6 +157,7 @@ function love.update(dt)
         makeShips()
         INIT_LEVEL = false
     elseif not GET_DIFFICULTY then
+        Tick.update(dt)
         if #SHIPS <= 0 then
             INIT_LEVEL   = LEVEL < 3 and true or false
             GAME_OVER    = not INIT_LEVEL
@@ -199,7 +216,7 @@ local function initConstants()
         HEIGHT       = 450,
         SHIP_HEIGHT  = ship_img:getHeight(),
         SHIP_WIDTH   = ship_img:getWidth(),
-        OFFSET       = ship_img:getHeight() / 2,
+        OFFSET       = ship_img:getHeight() / 2 + 15,
         SPEED        = 20,
         RED          = r,
         GREEN        = g,
@@ -207,7 +224,8 @@ local function initConstants()
         FONT         = font,
         FONT_HEIGHT  = height,
         FONT_HALF_H  = height / 2,
-        FONT_WIDTH   = font:getWidth(1)
+        FONT_WIDTH   = font:getWidth(1),
+        EXPLOSION    = love.graphics.newImage('assets/graphics/explosion/explosion.png')
         })
 end
 
@@ -230,5 +248,6 @@ function love.load()
     LEVEL          = 1     -- current level
     PLAYER_SCORE   = 0     -- player's score
     REGEX_CHOICE   = 0
+    EXPLOSIONS     = {}
 end
 
